@@ -3,7 +3,7 @@ WITH order_data AS (
     SELECT
         orders.user_id,
         orders.creation_time,
-                    orders.total_price,
+        orders.total_price,
         orders.final_status,
         orders.store_id,
         users.signed_up_time,
