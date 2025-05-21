@@ -1,3 +1,4 @@
+-- Ch 1 
 -- Query the list of CITY names from STATION that do not start with vowels and do not end with vowels. Your result cannot contain duplicates
 
 SELECT DISTINCT CITY
@@ -18,3 +19,24 @@ WHERE CITY NOT LIKE 'A%'
 -- SELECT DISTINCT CITY
 -- FROM STATION
 -- WHERE CITY REGEXP '^[^aeiouAEIOU].*[^aeiouAEIOU]$'
+
+ -- Ch 2 
+  
+  
+  -- Min & Max Value 
+
+(
+    SELECT 
+        MAX(population) AS max_population
+    FROM country
+)
+UNION ALL
+(
+    SELECT 
+        MIN(population) AS min_population
+    FROM country
+)
+
+
+
+
