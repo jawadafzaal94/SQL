@@ -188,3 +188,6 @@ WHERE TABLE_NAME = 'tblEmployee'
 ORDER BY table_name
 
 -----------------------------------
+
+
+JOINS PRACTICE: https://pakdb-logic-engine-547526820015.us-west1.run.app/
