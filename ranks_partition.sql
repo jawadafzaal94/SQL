@@ -84,6 +84,39 @@ Hint:
 DATEDIFF(activity_date, first_date)
 (or equivalent depending on SQL dialect)
 
+-----------
+
+  
+WITH first_activity AS (
+    SELECT 
+        user_id,
+        MIN(activity_date) AS signup_date
+    FROM user_activity
+    GROUP BY user_id
+),
+
+day7_return AS (
+    SELECT 
+        f.user_id,
+        f.signup_date
+    FROM first_activity f
+    JOIN user_activity a
+      ON f.user_id = a.user_id
+     AND a.activity_date = DATE_ADD(f.signup_date, INTERVAL 7 DAY)
+)
+
+SELECT 
+    signup_date,
+    COUNT(DISTINCT f.user_id) AS total_users,
+    COUNT(DISTINCT d.user_id) AS returned_day7_users,
+    COUNT(DISTINCT d.user_id) * 1.0 / COUNT(DISTINCT f.user_id) AS retention_rate
+FROM first_activity f
+LEFT JOIN day7_return d
+    ON f.user_id = d.user_id
+GROUP BY signup_date
+
+-----------------------
+
 
 
 
