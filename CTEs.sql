@@ -295,7 +295,8 @@ WITH highest_paid AS (
     SELECT name,
            department,
            salary,
-           RANK () OVER ( PARTITION BY department ORDER BY salary DESC ) AS rnk
+           RANK () OVER ( PARTITION BY department 
+                              ORDER BY salary DESC ) AS rnk
 FROM employees
 )
 
@@ -351,4 +352,148 @@ WHERE total_spent > ( SELECT
                         average_spent
                       FROM average_total_spent
                       )
+
+----------------------------------------------
+
+-- 1️⃣ Second Highest Salary per Department
+
+Table: employees
+id	name	department	salary
+1	Ali	    Sales	    4000
+2	Sara	Sales	    6000
+3	Ahmed	Sales	    5000
+4	Zain	Tech	    7000
+5	Noor	Tech	    6500
+
+Task
+Return the second highest salary in each department.
+
+Return:
+department
+name
+salary
+
+-----------------------------------------------
+
+WITH salaries AS (
+
+    SELECT 
+        department,
+        name,
+        salary,
+        DENSE_RANK() OVER (PARTITION BY department 
+                               ORDER BY salary DESC) AS rnk
+    FROM employees
+
+)
+
+ SELECT 
+        department,
+        name,
+        salary
+FROM salaries
+WHERE rnk = 2
+
+--------------------------------------------------
+
+2️⃣ Running Total of Daily Sales
+
+Table: sales
+order_id	order_date	amount
+  1	         2024-01-01	 200
+  2	         2024-01-01	 100
+  3	         2024-01-02	 300
+  4	         2024-01-03	 150
+  5	         2024-01-03	 200
+Task
+First calculate total sales per day
+Then compute a running cumulative total
+
+Return:
+| order_date | daily_sales | running_total |
+
+Hint:
+SUM(daily_sales) OVER (ORDER BY order_date)
+
+---------------
+
+WITH total_sales_day AS (
+
+        SELECT 
+            order_date,
+            SUM(amount) AS daily_sales
+        FROM sales
+        GROUP BY order_date
+)
+
+SELECT 
+    order_date,
+    daily_sales,
+    SUM(daily_sales) OVER (ORDER BY order_date) AS running_total
+FROM total_sales_day
+
+
+----------------------------------------
+
+(Q3)
+
+Table: orders
+
+order_id	customer_id	order_date
+  1	             101	2024-01-01
+  2	             101	2024-01-02
+  3	             102	2024-01-01
+  4	             102	2024-01-04
+  5	             103	2024-01-03
+  6	             103	2024-01-04
+
+Task
+Find customers who placed orders on consecutive days.
+
+Return:
+customer_id
+
+Hint:
+LAG(order_date)
+
+
+-------------------
+
+WITH ordered_dates AS (
+
+    SELECT 
+        customer_id,
+        order_date,
+        LAG(order_date) OVER (
+                        PARTITION BY customer_id 
+                            ORDER BY order_date
+                                ) AS prev_order_date
+    FROM orders
+
+)
+
+SELECT DISTINCT customer_id
+FROM ordered_dates
+WHERE DATEDIFF(order_date, prev_order_date) = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
