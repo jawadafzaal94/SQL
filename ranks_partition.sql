@@ -117,6 +117,101 @@ GROUP BY signup_date
 
 -----------------------
 
+3️⃣ Event Funnel Analysis
+Problem: Purchase Funnel
+  
+Table: events
+  
+user_id	  event_name	  event_time
+   1	    view_product	  10:00
+   1	    add_to_cart    	10:05
+   1	      purchase	    10:10
+   2	    view_product	  11:00
+   2	     add_to_cart	  11:03
+   3	    view_product	  12:00
+
+  Funnel Steps
+1️⃣ view_product
+2️⃣ add_to_cart
+3️⃣ purchase
+
+Task
+
+Calculate the number of users who reached each stage:
+
+Return:
+
+stage	users
+viewed_product	?
+added_to_cart	?
+purchased	?
+
+Constraint:
+
+Users must follow the correct order of events.
+
+Hint:
+
+Use CTEs for each funnel stage.
+
+---------------------------------------------------------
+
+WITH viewed AS (
+    SELECT 
+      DISTINCT user_id
+      FROM events
+    WHERE event_name = 'view_product'
+),
+
+added_cart AS (
+    SELECT 
+      DISTINCT e.user_id
+    FROM events e
+    JOIN viewed v
+      ON e.user_id = v.user_id
+    WHERE e.event_name = 'add_to_cart'
+),
+
+purchased AS (
+    SELECT 
+      DISTINCT e.user_id
+    FROM events e
+    JOIN added_cart a
+      ON e.user_id = a.user_id
+    WHERE e.event_name = 'purchase'
+)
+
+SELECT 
+  'viewed_product' AS stage,
+  COUNT(*) AS users
+FROM viewed
+
+UNION ALL
+
+SELECT 
+  'added_to_cart',
+  COUNT(*)
+FROM added_cart
+
+UNION ALL
+
+SELECT 
+  'purchased',
+  COUNT(*)
+FROM purchased;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
