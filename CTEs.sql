@@ -476,14 +476,186 @@ SELECT DISTINCT customer_id
 FROM ordered_dates
 WHERE DATEDIFF(order_date, prev_order_date) = 1;
 
+---------------------------------------------
+
+1️⃣ First Purchase Conversion
+    
+Table: events
+user_id	 event_name 	event_time
+1	      signup	       Jan 1
+1	   view_product  	   Jan 2
+1	    purchase	       Jan 5
+2	      signup	       Jan 1
+2	    view_product	    Jan 3
+
+    
+Task
+Find percentage of users who made a purchase after signup.
+
+Return:
+total_users
+purchasers
+conversion_rate
+
+    ---------------------------------------------------------
+
+WITH signup_users AS (
+    SELECT 
+        DISTINCT user_id
+    FROM events
+    WHERE event_name = 'signup'
+),
+
+purchase_users AS (
+    SELECT 
+        DISTINCT user_id
+    FROM events
+    WHERE event_name = 'purchase'
+)
+
+SELECT 
+    COUNT(DISTINCT s.user_id) AS total_users,
+    COUNT(DISTINCT p.user_id) AS purchasers,
+    COUNT(DISTINCT p.user_id) * 100.0 / COUNT(DISTINCT s.user_id) AS conversion_rate
+FROM signup_users s
+LEFT JOIN purchase_users p
+       ON s.user_id = p.user_id;
+
+-------------------------------------------------------------------------------
+    
+2️⃣ Most Active Day per User
+Table: user_activity
+user_id	activity_date
+1	Jan 1
+1	Jan 1
+1	Jan 2
+2	Jan 3
+2	Jan 3
+    
+Task
+Find the day each user was most active.
+
+Return:
+
+user_id
+activity_date
+activity_count
+
+--------------------------------------------------------------------------------
+    
+3️⃣ Top 2 Products per Category
+Table: sales
+product_id	category	revenue
+1	A	100
+2	A	200
+3	A	150
+4	B	300
+5	B	250
+    
+Task
+Find top 2 products by revenue per category.
+
+
+    
+    -----------------------------------------------------------------------
+🚀 Set 2 — Medium+ (Real BI Thinking)
+4️⃣ Daily Active Users (DAU)
+Table: logins
+user_id	login_date
+1	Jan 1
+1	Jan 1
+2	Jan 1
+2	Jan 2
+
+Task
+Calculate DAU per day.
+
+
+    
+-------------------------------------------------------------------------------------
+5️⃣ Users with Increasing Activity
+Table: orders
+user_id	order_date	amount
+1	Jan 1	100
+1	Jan 2	200
+1	Jan 3	300
+2	Jan 1	100
+2	Jan 2	50
+    
+Task
+Find users whose order amount strictly increases day by day.
+(Hint: LAG())
+
+
+
+ ---------------------------------------------------------------------------------------------   
+6️⃣ Average Time Between Orders
+Table: orders
+user_id	order_time
+1	Jan 1 10:00
+1	Jan 1 12:00
+1	Jan 2 10:00
+    
+Task
+Calculate average time between orders per user.
 
 
 
 
 
 
+---------------------------------------------------------------------------------------------
+🧠 Set 3 — Hard (Interview Level)
+7️⃣ Retention Cohort (Week 1 Retention)
+Table: logins
+user_id	login_date
+1	Jan 1
+1	Jan 8
+2	Jan 1
+2	Jan 2
+    
+Task
+Calculate Week-1 retention per signup date.
 
 
+
+
+
+---------------------------------------------------------------------------------------------
+8️⃣ Sessionization (Very Important)
+Table: events
+user_id	event_time
+1	10:00
+1	10:05
+1	11:00
+    
+Task
+Create sessions where:
+new session if gap > 30 minutes
+
+Return:
+user_id
+session_id
+
+
+
+
+---------------------------------------------------------------------------------------------
+    
+9️⃣ Funnel Drop-Off Rate
+Table: events
+user_id	step
+1	signup
+1	login
+1	purchase
+2	signup
+2	login
+Task
+
+Calculate:
+
+users at each step
+drop-off % between steps
 
 
 
