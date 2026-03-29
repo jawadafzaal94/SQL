@@ -524,13 +524,14 @@ LEFT JOIN purchase_users p
 -------------------------------------------------------------------------------
     
 2️⃣ Most Active Day per User
+    
 Table: user_activity
 user_id	activity_date
-1	Jan 1
-1	Jan 1
-1	Jan 2
-2	Jan 3
-2	Jan 3
+1	      Jan 1
+1	      Jan 1
+1	      Jan 2
+2	      Jan 3
+2	      Jan 3
     
 Task
 Find the day each user was most active.
@@ -541,19 +542,80 @@ user_id
 activity_date
 activity_count
 
+---------------
+
+    
+WITH user_activity_count AS (
+
+    SELECT
+        user_id,
+        activity_date,
+        COUNT(*) AS activity_count
+    FROM user_activity
+    GROUP BY user_id, activity_date
+),
+
+ranked_days AS (
+
+    SELECT *,
+           ROW_NUMBER() OVER ( PARTITION BY user_id
+                                   ORDER BY activity_count DESC
+                                                                ) AS rn
+    FROM user_activity_count
+)
+
+SELECT 
+    user_id,
+    activity_date,
+    activity_count
+FROM ranked_days
+WHERE rn = 1;
+    
+
 --------------------------------------------------------------------------------
     
 3️⃣ Top 2 Products per Category
 Table: sales
 product_id	category	revenue
-1	A	100
-2	A	200
-3	A	150
-4	B	300
-5	B	250
+  1	           A	    100
+  2	           A	    200
+  3	           A	    150
+  4	           B	    300
+  5	           B	    250
     
 Task
 Find top 2 products by revenue per category.
+-----------------
+
+WITH revenue_per_product AS (
+
+    SELECT 
+        product_id, 
+        category, 
+        SUM(revenue) AS revenue
+    FROM sales
+    GROUP BY product_id, category
+    
+), 
+
+ ranked_products AS (
+
+    SELECT *,
+            ROW_NUMBER() OVER ( PARTITION BY category
+                                    ORDER BY revenue DESC
+                                                         ) AS rn
+    FROM revenue_per_product
+    
+ )
+
+    SELECT 
+        product_id,
+        category,
+        revenue
+    FROM ranked_products
+    WHERE rn BETWEEN 1 AND 2 
+
+
 
 
     
@@ -562,14 +624,23 @@ Find top 2 products by revenue per category.
 4️⃣ Daily Active Users (DAU)
 Table: logins
 user_id	login_date
-1	Jan 1
-1	Jan 1
-2	Jan 1
-2	Jan 2
+   1	 Jan 1
+   1	 Jan 1
+   2	 Jan 1
+   2	 Jan 2
 
 Task
 Calculate DAU per day.
 
+------
+
+SELECT 
+    login_date,
+    COUNT(DISTINCT user_id) AS active_users
+FROM logins
+GROUP BY login_date
+ORDER BY login_date;
+    
 
     
 -------------------------------------------------------------------------------------
@@ -585,6 +656,15 @@ user_id	order_date	amount
 Task
 Find users whose order amount strictly increases day by day.
 (Hint: LAG())
+
+----------------------
+
+
+
+
+
+
+    
 
 
 
