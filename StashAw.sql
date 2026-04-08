@@ -114,7 +114,86 @@ FROM FunnelCounts
 ORDER BY month;
 
 
+------------
 
+JAN & FEB 
+
+
+WITH UserSignup AS (
+    -- Step 1: Assign each user to a signup cohort
+    SELECT 
+        user_id,
+        MIN(progress_state_updated_at) AS signup_date,
+        DATE_TRUNC('month', MIN(progress_state_updated_at)) AS signup_month
+    FROM onboarding_audit
+    WHERE progress_state_current = 'signup'
+    GROUP BY user_id
+),
+
+UserSteps AS (
+    -- Step 2: Attach all user events to their signup cohort
+    SELECT 
+        us.signup_month,
+        us.user_id,
+        oa.progress_state_current,
+        oa.progress_state_updated_at
+    FROM onboarding_audit oa
+    JOIN UserSignup us
+        ON oa.user_id = us.user_id
+),
+
+StepCounts AS (
+    -- Step 3: Count users at each step per cohort
+    SELECT 
+        signup_month,
+        progress_state_current AS step_name,
+        COUNT(DISTINCT user_id) AS users
+    FROM UserSteps
+    WHERE progress_state_current IN (
+        'signup',
+        'mobileLogin',
+        'financialAssessment',
+        'portfolioCreation',
+        'informationProvided',
+        'agreementSigned',
+        'firstDeposit'
+    )
+    GROUP BY 
+        signup_month,
+        progress_state_current
+),
+
+MonthlySignups AS (
+    -- Step 4: Total users per cohort (baseline)
+    SELECT 
+        signup_month,
+        COUNT(DISTINCT user_id) AS total_signups
+    FROM UserSignup
+    GROUP BY signup_month
+)
+
+-- Final output
+SELECT 
+    sc.signup_month,
+    sc.step_name,
+    sc.users,
+    ms.total_signups,
+    ROUND(sc.users * 100.0 / ms.total_signups, 2) AS conversion_percentage
+FROM StepCounts sc
+JOIN MonthlySignups ms
+    ON sc.signup_month = ms.signup_month
+
+ORDER BY 
+    sc.signup_month,
+    CASE sc.step_name
+        WHEN 'signup' THEN 1
+        WHEN 'mobileLogin' THEN 2
+        WHEN 'financialAssessment' THEN 3
+        WHEN 'portfolioCreation' THEN 4
+        WHEN 'informationProvided' THEN 5
+        WHEN 'agreementSigned' THEN 6
+        WHEN 'firstDeposit' THEN 7
+    END;
 
 
 
