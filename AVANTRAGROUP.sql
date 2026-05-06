@@ -111,9 +111,85 @@ GROUP BY c.customer_name
 ORDER BY total_amount_spent DESC
 
 
+---------------
+
+Question 5 — COUNT + DISTINCT
+
+Using the orders table:
+
+Task:
+
+Return:
+
+total_orders
+total_unique_customers
 
 
+SELECT 
+  COUNT(*) AS total_orders,
+  COUNT(DISTINCT customer_id) AS total_unique_customers
+FROM orders;
 
+-----------------------------------------
+
+Question 6 — Top N (Classic)
+
+Using orders table:
+
+Task:
+
+Return:
+
+customer_id
+total_amount_spent
+
+👉 Only show top 2 customers by total spending
+
+
+SELECT 
+   customer_id,
+   SUM(amount) AS total_amount_spent
+FROM orders
+GROUP BY customer_id
+ORDER by SUM(amount) DESC
+LIMIT 2
+
+--------------------------
+
+Question 7 — Second Highest (Classic Interview Favorite)
+
+Using orders table:
+
+Task:
+
+Find the second highest total spending customer
+
+👉 Return:
+
+customer_id
+total_amount_spent
+
+
+WITH customer_total AS (
+  SELECT 
+    customer_id,
+    SUM(amount) AS total_amount_spent
+  FROM orders 
+  GROUP BY customer_id
+),
+
+ranks AS (
+  SELECT 
+    *,
+    RANK() OVER (ORDER BY total_amount_spent DESC) AS rnk
+  FROM customer_total
+)
+
+SELECT
+  customer_id,
+  total_amount_spent
+FROM ranks
+WHERE rnk = 2;
 
 
 
