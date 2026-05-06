@@ -191,6 +191,25 @@ SELECT
 FROM ranks
 WHERE rnk = 2;
 
+------------------
+
+Question 8 — Daily Active Users (DAU)
+Table: logins
+Task:
+
+Return:
+
+date
+number of unique users per day
+
+
+SELECT
+    DATE(login_time) AS date,
+    COUNT(DISTINCT user_id) AS daily_active_users
+FROM logins
+GROUP BY DATE(login_time)
+ORDER BY date;
+
 
 
 
