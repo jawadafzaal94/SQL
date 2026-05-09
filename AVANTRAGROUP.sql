@@ -211,7 +211,43 @@ GROUP BY DATE(login_time)
 ORDER BY date;
 
 
+--------------------------------
 
+WITH numbered AS (
+    SELECT 
+        user_id,
+        login_date,
+        ROW_NUMBER() OVER (
+            PARTITION BY user_id 
+            ORDER BY login_date
+        ) AS rn
+    FROM login_table
+),
+
+grouped AS (
+    SELECT 
+        user_id,
+        login_date,
+        DATE_SUB(login_date, INTERVAL rn DAY) AS grp
+    FROM numbered
+),
+
+streaks AS (
+    SELECT 
+        user_id,
+        MIN(login_date) AS start_date,
+        MAX(login_date) AS end_date,
+        COUNT(*) AS streak_length
+    FROM grouped
+    GROUP BY user_id, grp
+)
+
+SELECT *
+FROM streaks
+WHERE streak_length >= 5;
+
+
+-----------------
 
 
 
